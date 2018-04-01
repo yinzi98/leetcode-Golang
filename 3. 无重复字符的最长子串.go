@@ -10,25 +10,65 @@
 给定 "pwwkew" ，最长子串是 "wke" ，长度是3。请注意答案必须是一个子串，"pwke" 是 子序列 而不是子串。
 */
 
-package longest_substring_without_repeating_characters
+
+
+利用s[left:i+1]来表示s[:i+1]中的包含s[i]的最长子字符串。 location[s[i]]是字符s[i]在s[:i+1]中倒数第二次出现的序列号。 
+当left < location[s[i]]的时候，说明字符s[i]出现了两次。需要设置 left = location[s[i]] + 1, 保证字符s[i]只出现一次。
+
+大神思路：利用Location保存字符上次出现的序列号，避免了查询工作。location和Two Sum中的m是一样的作用。
+// m 负责保存map[整数]整数的序列号
+	m := make(map[int]int, len(nums))
+
+
+
+package problem0003
 
 func lengthOfLongestSubstring(s string) int {
-	runes := []rune(s)
-	runeMap := make(map[rune]int)
-	longest := 0
-	preLength := 0
-	for i, rn := range runes {
-		var length int
-		if val, ok := runeMap[rn]; !ok || val < i-preLength {
-			length = preLength + 1
-		} else {
-			length = i - val
-		}
-		if length > longest {
-			longest = length
-		}
-		preLength = length
-		runeMap[rn] = i
+
+	// location[s[i]] == j 表示：
+
+	// s中第i个字符串，上次出现在s的j位置，所以，在s[j+1:i]中没有s[i]
+
+	// location[s[i]] == -1 表示： s[i] 在s中第一次出现
+
+	location := [256]int{} // 只有256长是因为，假定输入的字符串只有ASCII字符
+
+	for i := range location {
+
+		location[i] = -1 // 先设置所有的字符都没有见过
+
 	}
-	return longest
+
+
+
+	maxLen, left := 0, 0
+
+
+
+	for i := 0; i < len(s); i++ {
+
+		// 说明s[i]已经在s[left:i+1]中重复了
+
+		// 并且s[i]上次出现的位置在location[s[i]]
+
+		if location[s[i]] >= left {
+
+			left = location[s[i]] + 1 // 在s[left:i+1]中去除s[i]字符及其之前的部分
+
+		} else if i+1-left > maxLen {
+
+			// fmt.Println(s[left:i+1])
+
+			maxLen = i + 1 - left
+
+		}
+
+		location[s[i]] = i
+
+	}
+
+
+
+	return maxLen
+
 }
